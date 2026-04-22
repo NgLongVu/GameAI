@@ -45,4 +45,6 @@ MAP_PATHS = [
     'data/map_1.json',
     'data/map_2.json',
     'data/map_3.json',
+    'data/map_4.json',
+    'data/map_5.json',
 ]

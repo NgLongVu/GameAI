@@ -39,7 +39,7 @@ class LevelSelectMenu:
             pos = btn['pos']
             r = btn['r']
 
-            if lvl <= 4:
+            if lvl <= 5:
                 pygame.draw.circle(screen, BTN_BLUE, pos, r)
                 pygame.draw.circle(screen, (0, 0, 0), pos, r, 2)
                 txt = self.font_num.render(str(lvl), True, (0, 0, 0))
@@ -62,7 +62,7 @@ class LevelSelectMenu:
 
         for btn in self.level_buttons:
             if dist(pos, btn['pos']) <= btn['r']:
-                if btn['level'] <= 4:
+                if btn['level'] <= 5:
                     return f"PLAY_LEVEL_{btn['level']}"
                 return None  # Locked
 
