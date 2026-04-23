@@ -20,6 +20,7 @@ def main():
     
     # Game Manager
     game_scene = None
+    current_level_idx = 0
     
     # State Machine
     # STATES: "MAIN_MENU", "LEVEL_SELECT", "PLAYING", "SETTINGS_MENU"
@@ -42,7 +43,8 @@ def main():
                 if app_state == "MAIN_MENU":
                     action = main_menu.handle_click(mouse_pos)
                     if action == "PLAY_LEVEL_1":
-                        game_scene = GameScene(MAP_PATHS[0], level_name="Level 1")
+                        current_level_idx = 0
+                        game_scene = GameScene(MAP_PATHS[current_level_idx], level_name="Level 1")
                         app_state = "PLAYING"
                     elif action == "OPEN_LEVEL_SELECT":
                         app_state = "LEVEL_SELECT"
@@ -56,8 +58,9 @@ def main():
                         app_state = "MAIN_MENU"
                     elif action and action.startswith("PLAY_LEVEL_"):
                         lvl_idx = int(action.split("_")[-1]) - 1
-                        map_path = MAP_PATHS[min(lvl_idx, len(MAP_PATHS) - 1)]
-                        game_scene = GameScene(map_path, level_name=f"Level {lvl_idx + 1}")
+                        current_level_idx = min(lvl_idx, len(MAP_PATHS) - 1)
+                        map_path = MAP_PATHS[current_level_idx]
+                        game_scene = GameScene(map_path, level_name=f"Level {current_level_idx + 1}")
                         app_state = "PLAYING"
                         
                 elif app_state == "SETTINGS_MENU":
@@ -73,7 +76,9 @@ def main():
                     app_state = "MAIN_MENU" if action == "BACK_TO_MENU" else "LEVEL_SELECT"
                     game_scene = None # clear memory
                 elif action in ["REPLAY", "NEXT"]:
-                    game_scene = GameScene(MAP_PATHS[0], level_name="Level 1")
+                    if action == "NEXT":
+                        current_level_idx = min(current_level_idx + 1, len(MAP_PATHS) - 1)
+                    game_scene = GameScene(MAP_PATHS[current_level_idx], level_name=f"Level {current_level_idx + 1}")
                 elif action == "OPEN_SETTINGS":
                     prev_state = app_state
                     app_state = "SETTINGS_MENU"
