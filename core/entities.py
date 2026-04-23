@@ -1,18 +1,33 @@
 import pygame
+import math
+import os
 from utils.constants import LERP_SPEED, WINDOW_WIDTH, WINDOW_HEIGHT
 
+ICON_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'icons')
+
 class Entity:
-    def __init__(self, start_node, color=(0,0,0)):
+    def __init__(self, start_node, color=(0,0,0), image_file=None, radius=20):
         self.current_node = start_node
         self.target_node = start_node
-        # Start exactly at the node's position
         self.visual_x = float(start_node.x)
         self.visual_y = float(start_node.y)
         self.color = color
-        self.radius = 20
+        self.radius = radius
+        self.idle_timer = 0
+        
+        self.image = None
+        if image_file:
+            path = os.path.join(ICON_DIR, image_file)
+            if os.path.exists(path):
+                # Load once
+                raw_img = pygame.image.load(path).convert_alpha()
+                # Use a higher quality scaling method (rotozoom with scale factor)
+                target_size = self.radius * 2
+                current_size = raw_img.get_width()
+                scale_factor = target_size / current_size
+                self.image = pygame.transform.rotozoom(raw_img, 0, scale_factor)
 
     def move_to(self, node):
-        """Logic movement, visual movement will follow smoothly via update()"""
         self.current_node = node
         self.target_node = node
 
@@ -27,22 +42,22 @@ class Entity:
         self.visual_y += (self.target_node.y - self.visual_y) * LERP_SPEED
 
     def draw(self, screen):
-        # Temp shape logic, should load images ideally
-        pygame.draw.circle(screen, self.color, (int(self.visual_x), int(self.visual_y)), self.radius)
-        # Give border
-        pygame.draw.circle(screen, (0, 0, 0), (int(self.visual_x), int(self.visual_y)), self.radius, 2)
+        ix, iy = int(self.visual_x), int(self.visual_y)
+        
+        if self.image:
+            rect = self.image.get_rect(center=(ix, iy))
+            screen.blit(self.image, rect)
+        else:
+            pygame.draw.circle(screen, self.color, (ix, iy), self.radius)
+            pygame.draw.circle(screen, (0, 0, 0), (ix, iy), self.radius, 2)
 
 class Police(Entity):
     def __init__(self, start_node):
-        # Police represented by dark blue
-        super().__init__(start_node, color=(20, 40, 100))
-        self.radius = 22
+        super().__init__(start_node, color=(20, 40, 100), image_file='police.png', radius=48)
 
 class Thief(Entity):
     def __init__(self, start_node):
-        # Thief represented by dark grey
-        super().__init__(start_node, color=(80, 80, 80))
-        self.radius = 18
+        super().__init__(start_node, color=(80, 80, 80), image_file='thief.png', radius=48)
 
     def is_at_exit(self):
         return self.current_node.type == 'exit'

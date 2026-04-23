@@ -33,7 +33,6 @@ class Command:
         t.visual_y = float(t.current_node.y)
         
         # Restore freeze
-        game_state_manager.freeze_available = self.fp_before['available']
         game_state_manager.is_thief_frozen = self.fp_before['active']
         game_state_manager.turn = Turn.POLICE
 
@@ -45,8 +44,6 @@ class GameState:
         
         self.turn = Turn.POLICE
         self.history = []
-        self.undo_available = True
-        self.freeze_available = True
         self.is_thief_frozen = False
         
         # UI Selection state
@@ -64,25 +61,22 @@ class GameState:
         
     def _capture_freeze_state(self):
         return {
-            'available': self.freeze_available,
             'active': self.is_thief_frozen
         }
 
     def can_undo(self):
-        return self.undo_available and len(self.history) > 0
+        return len(self.history) > 0
 
     def undo(self):
         if self.can_undo():
             last_command = self.history.pop()
             last_command.undo(self)
-            self.undo_available = False # 1 time use
             self.selected_police = None
             self.turn_start_state = self._capture_state()
 
     def use_freeze(self):
-        if self.turn == Turn.POLICE and self.freeze_available:
+        if self.turn == Turn.POLICE and not self.is_thief_frozen:
             self.is_thief_frozen = True
-            self.freeze_available = False
             return True
         return False
 
@@ -90,9 +84,10 @@ class GameState:
         if self.thief.is_at_exit():
             self.turn = Turn.GAME_OVER_THIEF_WIN
             return True
-        # Check if thief has no valid moves
-        valid_moves = choose_thief_move(self.thief.current_node, [p.current_node for p in self.police])
-        if not valid_moves and not self.is_thief_frozen:
+        # Check if thief has no valid moves (trapped)
+        p_ids = {p.current_node.id for p in self.police}
+        can_move = any(n.id not in p_ids for n in self.thief.current_node.neighbors)
+        if not can_move and not self.is_thief_frozen:
             # Trapped!
             self.turn = Turn.GAME_OVER_POLICE_WIN
             return True
@@ -118,7 +113,7 @@ class GameState:
             self.is_thief_frozen = False
         else:
             p_nodes = [p.current_node for p in self.police]
-            next_node = choose_thief_move(self.thief.current_node, p_nodes)
+            next_node = choose_thief_move(self.thief.current_node, p_nodes, self.board.nodes)
             
             if next_node:
                 self.thief.move_to(next_node)

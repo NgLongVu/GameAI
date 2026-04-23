@@ -40,3 +40,8 @@ def compute_distances_from_nodes(start_nodes):
                 queue.append((neighbor, dist + 1))
 
     return distances
+
+def get_all_exits(nodes):
+    """Return a list of all nodes marked as exits."""
+    all_nodes = nodes.values() if isinstance(nodes, dict) else nodes
+    return [n for n in all_nodes if n.type == 'exit']
