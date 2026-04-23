@@ -1,6 +1,7 @@
 # Screen settings
-WINDOW_WIDTH = 600
-WINDOW_HEIGHT = 800
+# Screen settings (These will be updated dynamically in main.py)
+WINDOW_WIDTH = 500
+WINDOW_HEIGHT = 900
 FPS = 60
 
 # Base Colors
@@ -37,8 +38,8 @@ TEXT_ORANGE = (240, 130, 40)
 
 # Game Mechanics
 LERP_SPEED = 0.15
-NODE_RADIUS = 18
-EXIT_SIZE = 40
+NODE_RADIUS = 22
+EXIT_SIZE = 46
 
 # Map files (ordered by level index)
 MAP_PATHS = [
@@ -47,4 +48,7 @@ MAP_PATHS = [
     'data/map_3.json',
     'data/map_4.json',
     'data/map_5.json',
+    'data/map_6.json',
+    'data/map_7.json',
+    'data/map_8.json'
 ]
